@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>跳动的立体爱心</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cherry: '#E91E63', // 樱桃色
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .heart-shape {
+                /* 基础爱心形状 */
+                position: relative;
+                width: 150px;
+                height: 130px;
+                transform: rotate(-45deg);
+                margin: 100px auto;
+            }
+            .heart-shape:before,
+            .heart-shape:after {
+                content: "";
+                position: absolute;
+                width: 150px;
+                height: 150px;
+                border-radius: 50%;
+            }
+            .heart-shape:before {
+                top: -75px;
+                left: 0;
+            }
+            .heart-shape:after {
+                top: 0;
+                right: -75px;
+            }
+            
+            .heart-beat {
+                /* 跳动动画 */
+                animation: heartbeat 1.3s infinite cubic-bezier(0.215, 0.61, 0.355, 1);
+            }
+            
+            .shadow-3d {
+                /* 增强立体感阴影 */
+                filter: drop-shadow(0 12px 10px rgba(194, 24, 91, 0.3));
+            }
+        }
+        
+        @keyframes heartbeat {
+            0% { transform: rotate(-45deg) scale(1); }
+            14% { transform: rotate(-45deg) scale(1.15); }
+            28% { transform: rotate(-45deg) scale(1); }
+            42% { transform: rotate(-45deg) scale(1.15); }
+            70% { transform: rotate(-45deg) scale(1); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center">
+    <div class="text-center">
+        <!-- 单个爱心元素（修复了嵌套问题） -->
+        <div class="heart-shape heart-beat shadow-3d" id="animatedHeart"></div>
+        <p class="text-gray-600 mt-8">樱桃色立体跳动爱心</p>
+    </div>
+    
+    <script>
+        const heart = document.getElementById('animatedHeart');
+        let hue = 330; // 樱桃色基础色相（330°对应玫红/樱桃色）
+        let direction = -1; // 色相变化方向（-1为降低，1为升高）
+        
+        // 颜色渐变动画（限制在粉色系范围内）
+        setInterval(() => {
+            hue += direction * 0.5; // 减缓颜色变化速度，更自然
+            
+            // 限定色相范围：300°（深粉）- 360°（浅粉/玫红）
+            if (hue < 300) direction = 1;
+            if (hue > 360) direction = -1;
+            
+            // 应用颜色到爱心及两侧半圆
+            const currentColor = `hsl(${hue}, 85%, 55%)`;
+            heart.style.backgroundColor = currentColor;
+            heart.style.boxShadow = `0 8px 20px -5px hsl(${hue}, 85%, 40%)`;
+            
+            // 同步两侧半圆颜色
+            const before = window.getComputedStyle(heart, 'before');
+            const after = window.getComputedStyle(heart, 'after');
+            heart.style.setProperty('--before-bg', currentColor);
+            heart.style.setProperty('--after-bg', currentColor);
+        }, 60);
+        
+        // 为伪元素添加样式（确保颜色同步）
+        const style = document.createElement('style');
+        style.textContent = `
+            #animatedHeart:before { background-color: var(--before-bg, #E91E63); }
+            #animatedHeart:after { background-color: var(--after-bg, #E91E63); }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
